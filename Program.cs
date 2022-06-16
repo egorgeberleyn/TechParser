@@ -6,7 +6,7 @@ namespace TechParser;
 
 public class Program
 {
-    public static async Task Main()
+    public static void Main()
     {           
         var host = CreateHostBuilder().Build();
         using (var scope = host.Services.CreateScope())
@@ -15,7 +15,7 @@ public class Program
             try
             {
                 var context = serviceProvider.GetRequiredService<ParserDbContext>(); //получение контекста Ѕƒ                
-                await DbInitializer.Initialize(context);  //инициализаци€ на основе контекста                
+                DbInitializer.Initialize(context);  //инициализаци€ на основе контекста                
             }
             catch (Exception ex)
             {                

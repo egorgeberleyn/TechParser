@@ -7,8 +7,8 @@ namespace TechParser.Core.Parser
     {
         public ParserSettings(string baseUrl)
         {
-            BaseUrl = baseUrl;
-            StartPoint = 1;            
+            BaseUrl = baseUrl; 
+            StartPoint = 1;  //начальная стр      
         }
 
         public string BaseUrl { get; set; }
@@ -16,7 +16,7 @@ namespace TechParser.Core.Parser
         public int StartPoint { get; set; }
         public int EndPoint { get; set; }
 
-        public HtmlDocument GetHtmlDocument()
+        public HtmlDocument GetHtmlDocument() //генерация html документа
         {
             var web = new HtmlWeb();
             string url = $"{BaseUrl}";
