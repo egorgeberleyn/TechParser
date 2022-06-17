@@ -3,7 +3,7 @@
     public class Order
     {
         public int Id { get; set; }
-        //public Guid ResourceId { get; set; }
+        public int ResourceId { get; set; }
         public string OrderNumber { get; set; }
         public string PublicationDate { get; set; }
         public string Material { get; set; }
@@ -15,6 +15,6 @@
         public string ExpirationDate { get; set; }
 
         //не заносится в базу
-        //public Resource Resource { get; set; }
+        public virtual Resource Resource { get; set; }
     }
 }
