@@ -2,15 +2,14 @@
 {
     public class Suggestion
     {
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
-        public Guid ProviderId { get; set; }
-        public DateTime Term { get; set; }
-        public decimal Price { get; set; }
+        public int Id { get; set; }
+        public int OrderId { get; set; }        
+        public string Time { get; set; }
+        public string Price { get; set; }
         public string Comment { get; set; }
-
+        public string ContactInfo { get; set; }       
+        
         //не в базу
-        public Order Order { get; set; }
-        public Provider Provider { get; set; }
+        public virtual Order Order { get; set; }        
     }
 }

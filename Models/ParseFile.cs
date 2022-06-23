@@ -2,11 +2,11 @@
 {
     public class ParseFile
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string NameFile { get; set; }       
-        public Guid OrderId { get; set; }
+        public int OrderId { get; set; }
 
         //не в базу
-        public Order Order { get; set; }
+        public virtual Order Order { get; set; }
     }
 }
