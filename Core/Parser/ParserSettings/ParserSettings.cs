@@ -1,9 +1,8 @@
 ﻿using HtmlAgilityPack;
-using TechParser.Core.Interfaces;
 
 namespace TechParser.Core.Parser
 {
-    public class ParserSettings : IParserSettings
+    public class ParserSettings 
     {
         public ParserSettings(string baseUrl)
         {

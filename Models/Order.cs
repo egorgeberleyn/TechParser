@@ -12,7 +12,7 @@
         public int ResourceId { get; set; }
         public string OrderNumber { get; set; }
         public string PublicationDate { get; set; }
-        public string Material { get; set; }
+        public string Adress { get; set; }
         public OrderStatus Status { get; set; }
         public List<string> ProcessingTypes { get; set; }
         public string NameDetail { get; set; }

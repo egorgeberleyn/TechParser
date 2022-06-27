@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\egebe\\source\\repos\\TechParser\\TechParser.csproj": {}
+    "C:\\Users\\Tema\\Desktop\\TechParser\\TechParser.csproj": {}
   },
   "projects": {
-    "C:\\Users\\egebe\\source\\repos\\TechParser\\TechParser.csproj": {
+    "C:\\Users\\Tema\\Desktop\\TechParser\\TechParser.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\egebe\\source\\repos\\TechParser\\TechParser.csproj",
+        "projectUniqueName": "C:\\Users\\Tema\\Desktop\\TechParser\\TechParser.csproj",
         "projectName": "TechParser",
-        "projectPath": "C:\\Users\\egebe\\source\\repos\\TechParser\\TechParser.csproj",
-        "packagesPath": "C:\\Users\\egebe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\egebe\\source\\repos\\TechParser\\obj\\",
+        "projectPath": "C:\\Users\\Tema\\Desktop\\TechParser\\TechParser.csproj",
+        "packagesPath": "C:\\Users\\Tema\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tema\\Desktop\\TechParser\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\egebe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Tema\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -58,9 +54,25 @@
               "target": "Package",
               "version": "[6.0.5, )"
             },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[7.0.0-preview.5.22301.12, )"
+            },
+            "Microsoft.Extensions.PlatformAbstractions": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[6.0.4, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerGen": {
+              "target": "Package",
+              "version": "[6.3.1, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerUI": {
+              "target": "Package",
+              "version": "[6.3.1, )"
             }
           },
           "imports": [
@@ -81,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.301\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }

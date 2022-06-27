@@ -3,6 +3,7 @@
     public class Provider
     {
         public int Id { get; set; }
+        public int ResourceId { get; set; }
         public string CompanyName { get; set; }
         public string Adress { get; set; }
         public string CompanyDescription { get; set; }

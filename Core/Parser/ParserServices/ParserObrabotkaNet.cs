@@ -1,33 +1,31 @@
 ﻿using HtmlAgilityPack.CssSelectors.NetCore;
 using TechParser.Core.Data;
 using TechParser.Models;
+using TechParser.Storage;
 
 namespace TechParser.Core.Parser
 {
     public class ParserObrabotkaNet
     {
-        public ParserObrabotkaNet(string url, ParserDbContext dbcontext)
+        public ParserObrabotkaNet(string url, IStorage storage)
         {
             parserSettings = new ParserSettings(url); //добавление настроек парсера
-            context = dbcontext;                                        
+            _storage = storage;
 
         }
         private readonly ParserSettings parserSettings;
-        private readonly ParserDbContext context;
+        private readonly IStorage _storage;
         
         public void ParseActiveOrders()
         {
             parserSettings.Prefix = @"/orders/?page=1";
             var htmlDocument = parserSettings.GetHtmlDocument();
 
-            var orderNumbers = context.Orders
-            .Where(ord => ord.ResourceId == 2 && ord.Status == OrderStatus.Active)
-            .Select(ord => ord.OrderNumber)
-            .ToList(); //достаем текущий набор карточек заказов из базы
+            var resourceID = _storage.GetResourceId("obrabotka.net");
+            var orderNumbers = _storage.GetActiveOrders(resourceID);
 
-            var resourceID = context.Resources.Where(res => res.Name == "obrabotka.net").First().Id;
-
-            parserSettings.EndPoint = int.Parse(htmlDocument.QuerySelectorAll("ul.pagination>li>a")
+            parserSettings.EndPoint =  
+                int.Parse(htmlDocument.QuerySelectorAll("ul.pagination>li>a")
                 .Skip(3)
                 .First()
                 .InnerText);
@@ -75,8 +73,8 @@ namespace TechParser.Core.Parser
                         Status = OrderStatus.Active,
                         DownloadFileUrl = downloadFileUrl
                     };
-                    context.Orders.Add(order);
-                    context.SaveChanges();
+                    _storage.AddOrder(order);
+                    
 
                     if (descriptionDocument.QuerySelector("body").InnerHtml.Contains("h3"))
                     {
@@ -89,7 +87,7 @@ namespace TechParser.Core.Parser
 
                             var comment = suggestion.QuerySelector("div.panel-body").InnerText.Replace("&nbsp;", " ").Trim().Split('\n')[0];
 
-                            context.Suggestions.Add(new Suggestion
+                            _storage.AddSuggestions(new Suggestion
                             {
                                 OrderId = order.Id,
                                 ContactInfo = string.Join(" ", contactInfo),
@@ -108,16 +106,12 @@ namespace TechParser.Core.Parser
             parserSettings.Prefix = @"/orders/archive/?page=1";
             var htmlDocument = parserSettings.GetHtmlDocument();
 
-            var orderNumbers = context.Orders
-            .Where(ord => ord.ResourceId == 2 && ord.Status == OrderStatus.Archive)
-            .Select(ord => ord.OrderNumber)
-            .ToList(); //достаем текущий набор карточек заказов из базы
+            var resourceID = _storage.GetResourceId("obrabotka.net");
+            var orderNumbers = _storage.GetArchiveOrders(resourceID);
 
-            var resourceID = context.Resources.Where(res => res.Name == "obrabotka.net").First().Id;
-
-            parserSettings.EndPoint = int.Parse(htmlDocument.QuerySelectorAll("li.hidden-xs")
+            parserSettings.EndPoint =  int.Parse(htmlDocument.QuerySelectorAll("li.hidden-xs")
                 .Last()
-                .InnerText);           
+                .InnerText); 
             
             for (int i = parserSettings.StartPoint; i < parserSettings.EndPoint; i++)
             {
@@ -162,8 +156,7 @@ namespace TechParser.Core.Parser
                         Status = OrderStatus.Archive,
                         DownloadFileUrl = downloadFileUrl
                     };
-                    context.Orders.Add(order);
-                    context.SaveChanges();
+                    _storage.AddOrder(order);
 
                     if (descriptionDocument.QuerySelector("body").InnerHtml.Contains("h3"))
                     {
@@ -178,7 +171,7 @@ namespace TechParser.Core.Parser
                             
                             var comment = suggestion.QuerySelector("div.panel-body").InnerText.Replace("&nbsp;", " ").Trim().Split('\n')[0];
                             
-                            context.Suggestions.Add(new Suggestion
+                            _storage.AddSuggestions(new Suggestion
                             {
                                 OrderId = order.Id,
                                 ContactInfo = string.Join(" ", contactInfo),
@@ -198,10 +191,8 @@ namespace TechParser.Core.Parser
             parserSettings.Prefix = @"/companies/?page=1";
             var htmlDocument = parserSettings.GetHtmlDocument();
 
-            var providerNames = context.Providers
-            .Where(prov => prov.TypesOfServices == null)
-            .Select(ord => ord.CompanyName)
-            .ToList(); //достаем текущий набор карточек заказов из базы
+            var resourceID = _storage.GetResourceId("obrabotka.net");
+            var providerNames = _storage.GetContextProviders(resourceID);
 
             parserSettings.EndPoint = int.Parse(htmlDocument.QuerySelectorAll("ul.pagination>li>a")
                 .Skip(3)
@@ -230,8 +221,9 @@ namespace TechParser.Core.Parser
                         providerDescription = descriptionDocument.QuerySelector("p").InnerText.Trim();
                     }
 
-                    context.Providers.Add(new Provider
+                    _storage.AddProvider(new Provider
                     {
+                        ResourceId = resourceID,
                         CompanyName = providerName,
                         Adress = node.QuerySelector("span").InnerText.Trim(),
                         CompanyDescription = providerDescription.Replace("&quot;", "\"").Trim(),
@@ -240,7 +232,6 @@ namespace TechParser.Core.Parser
                     });                    
                 }
             }
-            context.SaveChanges();
         }
 
     }

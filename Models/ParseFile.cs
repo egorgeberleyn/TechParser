@@ -3,6 +3,7 @@
     public class ParseFile
     {
         public int Id { get; set; }
+        public string DownloadUrl { get; set; }
         public string NameFile { get; set; }       
         public int OrderId { get; set; }
 

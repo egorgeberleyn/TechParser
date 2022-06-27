@@ -2,22 +2,26 @@
 using System.Text.RegularExpressions;
 using TechParser.Core.Data;
 using TechParser.Models;
+using TechParser.Storage;
 
 namespace TechParser.Core.Parser;
 
 public class ParserMetalloobrabotchiki
 {               
-    public ParserMetalloobrabotchiki(string url, ParserDbContext dbcontext)
+    public ParserMetalloobrabotchiki(string url, IStorage storage)
     {
         parserSettings = new ParserSettings(url); //добавление настроек парсера
-        context = dbcontext;                                          
+        _storage = storage;
     }
+    
     private readonly ParserSettings parserSettings;
-    private readonly ParserDbContext context;    
+    private readonly IStorage _storage;  
+    
     public void ParseProviders()
     {
-        var providerIdentityNumbers = context.Providers.Select(prov => prov.TaxpayerIdentificationNumber).ToList();
-                
+        int resId = _storage.GetResourceId("Металлообработчики");
+        var contextProviders = _storage.GetContextProviders(resId);
+        
         var mainDocument = parserSettings.GetHtmlDocument();
         var regions = mainDocument.QuerySelector("ul").QuerySelectorAll("a").Select(reg => reg.Attributes[0].Value);
 
@@ -46,8 +50,9 @@ public class ParserMetalloobrabotchiki
                     parserSettings.Prefix = node.QuerySelector("a.com_cont").Attributes[0].Value; //ссылка для перехода на страницу с описанием
                     var descriptionDocument = parserSettings.GetHtmlDocument();
 
-                    var identityNumber = descriptionDocument.QuerySelector("div.contact-card").ChildNodes[1].InnerText;
-                    if (providerIdentityNumbers.Contains(identityNumber))
+                    var companyName = node.QuerySelector("h4>a").InnerText.Replace("&raquo;", " ")
+                        .Replace("&laquo;", " ");
+                    if (contextProviders.Contains(companyName))
                         continue;
 
                     var serviceList = descriptionDocument
@@ -55,38 +60,35 @@ public class ParserMetalloobrabotchiki
                         .Select(node => Regex.Replace(node.InnerText, @"[\r\t\b]", "").Trim())
                         .ToList();
 
-                    context.Providers.Add(new Provider
+                    _storage.AddProvider(new Provider
                     {
-                        CompanyName = node.QuerySelector("h4>a").InnerText.Replace("&raquo;", " ").Replace("&laquo;", " "),
+                        CompanyName = companyName,
+                        ResourceId = resId,
                         Adress = node.QuerySelector("p").InnerText,
                         CompanyDescription = Regex.Replace(node.QuerySelector("div.icons").InnerText, @"[\r\t\b]", " ").Trim(),
-                        TaxpayerIdentificationNumber = identityNumber,
+                        TaxpayerIdentificationNumber =  descriptionDocument.QuerySelector("div.contact-card").ChildNodes[1].InnerText,
                         TypesOfServices = serviceList,
                     });
                 }                
             }
         }
-        context.SaveChanges();        
     }
 
     public void ParseOrders()
     {
-        var orderNumbers = context.Orders
-            .Where(ord => ord.ResourceId == 5)
-            .Select(ord => ord.OrderNumber)
-            .ToList(); //достаем текущий набор карточек заказов из базы
+        var resId = _storage.GetResourceId("Металлообработчики");
+        var contextOrders = _storage.GetContextOrders(resId);
 
         parserSettings.Prefix = $"/orders";
         var document = parserSettings.GetHtmlDocument();
         var nodeCollection = document.QuerySelectorAll("div.col-md-8>p.category"); //карточки заказов
-
-        var resourceID = context.Resources.Where(res => res.Name == "Металлообработчики").First().Id;
+        
         foreach (var node in nodeCollection)
         {                        
             //проверка заказа в базе
             var dateAndNumber = node.ParentNode.QuerySelector("p.date").InnerText.Split("от", StringSplitOptions.RemoveEmptyEntries);
             var currentOrderNumber = dateAndNumber[0];
-            if (orderNumbers.Contains(currentOrderNumber))
+            if (contextOrders.Contains(currentOrderNumber))
                 continue;
             
             //получение страницы с подробностями
@@ -102,7 +104,7 @@ public class ParserMetalloobrabotchiki
                 downloadFileUrl = $"{parserSettings.BaseUrl}{descriptionDocument.QuerySelector("a.dwn_files").Attributes[0].Value}";
             }
 
-            context.Orders.Add(new Order
+            _storage.AddOrder(new Order
             {
                 OrderNumber = currentOrderNumber,
                 NameDetail = node.ParentNode.QuerySelector("div.col-md-8>h4>a").InnerText,
@@ -115,11 +117,10 @@ public class ParserMetalloobrabotchiki
                         .Replace("&mdash;", "—")
                         .Replace("&hellip;", "...")
                         .Replace("&nbsp;", " ").Trim(),
-                ResourceId = resourceID,
+                ResourceId = resId,
                 Status = OrderStatus.Active,
                 DownloadFileUrl = downloadFileUrl
             });                       
         }
-        context.SaveChanges();       
     }   
 }
